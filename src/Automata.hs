@@ -34,3 +34,26 @@ instance Show Automata where
           r = (width a) - l
           field :: Universe Cell -> [[Cell]]
           field = map (toList (-l) r) . take (height a) . iterate (=>> toURule (rule a))
+
+-- so it turns out one dimensional automata are a little limited
+-- there are only 255 possible rules if you can only look at the nearest
+-- neighbors
+-- lets allow you to choose any of those rules and have them auto generated
+-- instead of having to define them yourself
+-- then we can consider more complex automata
+
+getRule :: Int -> Rule
+getRule n = Rule (\(Cell a) (Cell b) (Cell c) -> Cell (norm8 (toBin n) !! fromBin [a,b,c]))
+
+norm8 :: [Bool] -> [Bool]
+norm8 n = if l < 0 then drop (abs l) n else take l (repeat False) ++ n
+  where l = 8 - length n
+
+fromBin :: [Bool] -> Int
+fromBin = foldl (\acc x -> acc * 2 + if x then 0 else 1) 0
+
+toBin :: Int -> [Bool]
+toBin = reverse . helper
+  where helper 0 = []
+        helper n | n `mod` 2 == 1 = True  : helper (n `div` 2)
+        helper n | n `mod` 2 == 0 = False : helper (n `div` 2)
