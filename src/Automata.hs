@@ -1,6 +1,6 @@
 module Automata where
 
-import Comonad
+import Control.Comonad
 import Universe
 
 -- So, it's difficult to display an infinite field of cells
