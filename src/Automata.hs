@@ -3,36 +3,34 @@ module Automata where
 import Comonad
 import Universe
 
+-- So, it's difficult to display an infinite field of cells
+-- and you don't really need to to get the gist of the automata anyway
+-- so instead, we should have a datatype which describes the
+-- height and width of the output, the universe to act on, and the rule
+-- For one dimensional automata, width is what we pass to toList
+-- and height is the number of iterations
 
--- I think this is what this rule produces
--- ___ = ___
--- __# = __#
--- _#_ = _#_
--- _## = _##
--- #__ = ##_
--- #_# = ###
--- ##_ = #__
--- ### = #_#
---triangle (Universe (a:_) b (c:_)) = not (a && b && not c || (a==b))
-triangle a b c = not (a && b && not c || (a==b))
+newtype Cell = Cell Bool
 
--- in binary order
--- 1 0 0 1 0 0 1 0
-scarf False False False = True
-scarf False False True = False
-scarf False True False = False
-scarf False True True = True
-scarf True False False = False
-scarf True False True = False
-scarf True True False = True
-scarf True True True = False
+instance Show Cell where
+  show (Cell True)  = "█"
+  show (Cell False) = " "
 
-toURule :: (a -> a -> a -> a) -> Universe a -> a
-toURule rule (Universe (a:_) b (c:_)) = rule a b c
+newtype Rule = Rule (Cell -> Cell -> Cell -> Cell)
 
-test = let u = Universe (repeat False) True (repeat False)
-        in putStr $
-           unlines $
-           take 20 $
-           map (map (\x -> if x then '█' else ' ') . toList (-20) 20) $
-           iterate (=>> toURule scarf) u
+toURule :: Rule -> Universe Cell -> Cell
+toURule (Rule f) (Universe (a:_) b (c:_)) = f a b c
+
+data Automata = Automata
+  { universe :: Universe Cell
+  , rule     :: Rule
+  , width    :: Int
+  , height   :: Int
+  }
+
+instance Show Automata where
+  show a = (unlines . map (>>= show) . field) (universe a)
+    where l = (width a) `div` 2
+          r = (width a) - l
+          field :: Universe Cell -> [[Cell]]
+          field = map (toList (-l) r) . take (height a) . iterate (=>> toURule (rule a))

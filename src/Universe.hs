@@ -23,6 +23,3 @@ shift i u = (iterate (if i<0 then left else right) u) !! abs i
 toList :: Int -> Int -> Universe a -> [a]
 toList i j u = take (j-i) $ half $ shift i u
   where half (Universe _ b c) = [b] ++ c
-
-instance Show a => Show (Universe a) where
-  show u = toList (-20) 20 u >>= show
