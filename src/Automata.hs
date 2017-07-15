@@ -57,3 +57,10 @@ toBin = reverse . helper
   where helper 0 = []
         helper n | n `mod` 2 == 1 = True  : helper (n `div` 2)
         helper n | n `mod` 2 == 0 = False : helper (n `div` 2)
+
+-- functions to help viewing of automata
+
+uinit = Universe (repeat (Cell False)) (Cell True) (repeat (Cell False))
+
+getAutomata :: Int -> Int -> Int -> Automata
+getAutomata n w h = Automata {universe = uinit, rule = getRule n, width = w, height = h}
