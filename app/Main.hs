@@ -1,5 +1,6 @@
 module Main where
 
-import Automata
+import Comonad
+import Universe
 
 main = undefined
